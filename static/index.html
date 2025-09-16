@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SOCAT Proxy Manager</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/static/js/app.js"></script>
+</head>
+
+<body class="d-flex flex-column">
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">SOCAT Proxies</a>
+            <button id="add-proxy" class="btn btn-primary">Add Proxy</button>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <div id="alerts"></div>
+
+        <button id="refresh-proxies" class="btn btn-sm btn-secondary mb-3">Refresh</button>
+
+        <table id="proxy-table" class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Listening Port</th>
+                    <th>Target Host</th>
+                    <th>Target Port</th>
+                    <th>Process ID</th>
+                    <th>Start Time</th>
+                    <th>Stop Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for creating new proxy -->
+    <div class="modal fade" id="proxyModal" tabindex="-1" aria-labelledby="proxyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="proxyForm" class="p-3">
+                    <h5 class="modal-title" id="proxyModalLabel">Create new proxy</h5>
+                    <div class="mb-3">
+                        <label for="listening_port" class="form-label">Listening port</label>
+                        <input type="number" class="form-control" id="listening_port" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="target_host" class="form-label">Target host</label>
+                        <input type="text" class="form-control" id="target_host" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="target_port" class="form-label">Target port</label>
+                        <input type="number" class="form-control" id="target_port" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
