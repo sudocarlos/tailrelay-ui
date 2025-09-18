@@ -1,6 +1,8 @@
 import sqlite3
 from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory, render_template_string
+import json
+import os
 from socat import start_socat_proxy, stop_socat_proxy, check_socat_installed
 
 # Database file path
@@ -263,11 +265,7 @@ def stop_proxy(proxy_id):
             process = active_processes.get(proxy_id)
             if process:
                 return_code, stdout, stderr = stop_socat_proxy(process)
-                
-                # Only delete from database if stop was successful
-                if return_code not in [0, 143, 500]:
-                    return jsonify({"error": f"Failed to stop proxy: return code {return_code}"}), 500
-                    
+                                    
             # Clean up process from memory
             active_processes.pop(proxy_id, None)
             
@@ -312,6 +310,76 @@ def start_proxy(proxy_id):
         
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+# Backup and restore functionality
+@app.route('/backup', methods=['POST'])
+def backup_proxies():
+    """Create a backup of all proxies"""
+    try:
+        proxies = get_all_proxies_from_db()
+        backup_data = []
+        
+        for proxy in proxies:
+            backup_data.append({
+                'id': proxy['id'],
+                'listening_port': proxy['listening_port'],
+                'target_host': proxy['target_host'],
+                'target_port': proxy['target_port'],
+                'status': proxy['status']
+            })
+        
+        return jsonify(backup_data)
+    except Exception as e:
+        return jsonify({"error": f"Failed to create backup: {str(e)}"}), 500
+
+@app.route('/restore', methods=['POST'])
+def restore_proxies():
+    """Restore proxies from JSON payload"""
+    try:
+        # Get JSON data from request
+        backup_data = request.get_json()
+        
+        if not backup_data:
+            return jsonify({"error": "No backup data provided"}), 400
+            
+        # Get the restore options
+        mode = request.args.get('mode', 'append')  # Default to append
+        
+        restored_count = 0
+        
+        if mode == 'overwrite':
+            # Clear existing proxies
+            for proxy in get_all_proxies_from_db():
+                delete_proxy_from_db(proxy['id'])
+                
+        # Add each proxy from backup
+        for proxy_config in backup_data:
+            # Skip the ID when restoring (it will be auto-generated)
+            proxy_config.pop('id', None)
+            
+            process = start_socat_proxy(
+                proxy_config['listening_port'],
+                proxy_config['target_host'],
+                proxy_config['target_port']
+            )
+            
+            # Insert into database with new ID
+            create_proxy_in_db(
+                proxy_config['listening_port'],
+                proxy_config['target_host'],
+                proxy_config['target_port'],
+                process.pid
+            )
+            
+            restored_count += 1
+            
+        return jsonify({
+            "message": f"Successfully restored {restored_count} proxies in {mode} mode",
+            "count": restored_count,
+            "mode": mode
+        })
+    except Exception as e:
+        return jsonify({"error": f"Failed to restore proxy: {str(e)}"}), 500
 
 if __name__ == '__main__':
     # Check if socat is installed

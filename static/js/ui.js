@@ -6,27 +6,23 @@ export function renderProxyTable(proxies) {
     proxies.forEach(proxy => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-      <td>${proxy.id}</td>
-      <td>${proxy.listening_port}</td>
-      <td>${proxy.target_host}</td>
-      <td>${proxy.target_port}</td>
-      <td>${proxy.process_id ?? '-'}</td>
-      <td>${proxy.start_time}</td>
-      <td>${proxy.stop_time ?? '-'}</td>
-      <td><span class="status badge ${proxy.status === 'running' ? 'bg-success' : 'bg-secondary'
+            <td>${proxy.listening_port}</td>
+            <td>${proxy.target_host}</td>
+            <td>${proxy.target_port}</td>
+            <td><span class="status badge ${proxy.status === 'running' ? 'bg-success' : 'bg-secondary'
             }">${proxy.status}</span></td>
-      <td>
-        <button class="btn btn-sm btn-outline-danger stop-proxy" data-id="${proxy.id}">
-          Stop
-        </button>
-        <button class="btn btn-sm btn-outline-success start-proxy" data-id="${proxy.id}">
-          Start
-        </button>
-        <button class="btn btn-sm btn-outline-danger delete-proxy" data-id="${proxy.id}">
-          Delete
-        </button>
-      </td>
-    `;
+            <td>
+                <button class="btn btn-sm btn-outline-danger stop-proxy" data-id="${proxy.id}">
+                    Stop
+                </button>
+                <button class="btn btn-sm btn-outline-success start-proxy" data-id="${proxy.id}">
+                    Start
+                </button>
+                <button class="btn btn-sm btn-outline-danger delete-proxy" data-id="${proxy.id}">
+                    Delete
+                </button>
+            </td>
+        `;
         tbody.appendChild(tr);
     });
 }
@@ -38,9 +34,9 @@ export function showAlert(message, type = 'success') {
     div.className = `alert alert-${type} alert-dismissible fade show`;
     div.role = 'alert';
     div.innerHTML = `
-    ${message}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  `;
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
     container.appendChild(div);
 
     setTimeout(() => div.remove(), 4000);

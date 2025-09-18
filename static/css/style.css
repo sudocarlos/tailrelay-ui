@@ -1,0 +1,79 @@
+/* Dark Mode Styles */
+body {
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-mode {
+    background-color: #121212 !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .navbar {
+    background-color: #1f1f1f !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .navbar-brand {
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .btn-outline-primary,
+body.dark-mode .btn-outline-success,
+body.dark-mode .btn-outline-warning,
+body.dark-mode .btn-outline-secondary {
+    color: #e0e0e0 !important;
+    border-color: #555 !important;
+}
+
+body.dark-mode .btn-outline-primary:hover,
+body.dark-mode .btn-outline-success:hover,
+body.dark-mode .btn-outline-warning:hover,
+body.dark-mode .btn-outline-secondary:hover {
+    background-color: #555 !important;
+    color: white !important;
+}
+
+body.dark-mode .table {
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .table thead th {
+    background-color: #1f1f1f !important;
+    border-color: #333 !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .table tbody tr {
+    border-color: #333 !important;
+}
+
+body.dark-mode .table tbody tr:hover {
+    background-color: #2a2a2a !important;
+}
+
+body.dark-mode .form-control {
+    background-color: #1f1f1f !important;
+    border-color: #333 !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .modal-content {
+    background-color: #1f1f1f !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .modal-header {
+    border-color: #333 !important;
+}
+
+body.dark-mode .modal-footer {
+    border-color: #333 !important;
+}
+
+body.dark-mode .btn-close {
+    filter: invert(1);
+}
+
+body.dark-mode .alert {
+    color: #e0e0e0 !important;
+}

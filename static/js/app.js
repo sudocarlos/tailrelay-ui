@@ -1,4 +1,4 @@
-import { fetchProxies, createProxy, stopProxy, startProxy, deleteProxy } from './api.js';
+import { fetchProxies, createProxy, stopProxy, startProxy, deleteProxy, backupProxies, restoreProxies } from './api.js';
 import { renderProxyTable, showAlert } from './ui.js';
 
 async function loadProxies() {
@@ -58,6 +58,37 @@ document.querySelector('#proxy-table tbody').addEventListener('click', async (e)
         loadProxies();
     } catch (err) {
         showAlert(`Action failed for #${id}: ${err.message}`, 'danger');
+    }
+});
+
+// ------------------------------------------------------------------
+// Backup and restore functionality
+document.getElementById('backup-proxies').addEventListener('click', async () => {
+    try {
+        await backupProxies();
+        showAlert('Backup created successfully');
+    } catch (err) {
+        showAlert(`Backup failed: ${err.message}`, 'danger');
+    }
+});
+
+document.getElementById('restore-proxies-append').addEventListener('click', async () => {
+    try {
+        await restoreProxies('append');
+        showAlert('Proxies restored (append mode)');
+        loadProxies();
+    } catch (err) {
+        showAlert(`Restore failed: ${err.message}`, 'danger');
+    }
+});
+
+document.getElementById('restore-proxies-overwrite').addEventListener('click', async () => {
+    try {
+        await restoreProxies('overwrite');
+        showAlert('Proxies restored (overwrite mode)');
+        loadProxies();
+    } catch (err) {
+        showAlert(`Restore failed: ${err.message}`, 'danger');
     }
 });
 
