@@ -1,17 +1,13 @@
-// src/api.js
-
-const BASE_URL = 'http://localhost:5000';
-
 /**
  * Fetch all proxies
  */
 export async function fetchProxies() {
     try {
-        const response = await fetch(`${BASE_URL}/proxy`, {
+        const response = await fetch(`/proxy`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status} ${JSON.parse(await response.text()).error}`);
         return await response.json();
     } catch (error) {
         console.error("Failed to fetch proxies:", error);
@@ -24,12 +20,12 @@ export async function fetchProxies() {
  */
 export async function createProxy(data) {
     try {
-        const response = await fetch(`${BASE_URL}/proxy`, {
+        const response = await fetch(`/proxy`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status} ${JSON.parse(await response.text()).error}`);
         return await response.json();
     } catch (error) {
         console.error("Failed to create proxy:", error);
@@ -42,10 +38,10 @@ export async function createProxy(data) {
  */
 export async function deleteProxy(id) {
     try {
-        const response = await fetch(`${BASE_URL}/proxy/${id}`, {
+        const response = await fetch(`/proxy/${id}`, {
             method: 'DELETE'
         });
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status} ${JSON.parse(await response.text()).error}`);
         return await response.json();
     } catch (error) {
         console.error("Failed to delete proxy:", error);
@@ -58,10 +54,10 @@ export async function deleteProxy(id) {
  */
 export async function stopProxy(id) {
     try {
-        const response = await fetch(`${BASE_URL}/proxy/${id}`, {
+        const response = await fetch(`/proxy/${id}`, {
             method: 'PUT'
         });
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status} ${JSON.parse(await response.text()).error}`);
         return await response.json();
     } catch (error) {
         console.error("Failed to stop proxy:", error);
@@ -74,10 +70,10 @@ export async function stopProxy(id) {
  */
 export async function startProxy(id) {
     try {
-        const response = await fetch(`${BASE_URL}/proxy/${id}/start`, {
+        const response = await fetch(`/proxy/${id}/start`, {
             method: 'POST'
         });
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status} ${JSON.parse(await response.text()).error}`);
         return await response.json();
     } catch (error) {
         console.error("Failed to start proxy:", error);
@@ -90,11 +86,11 @@ export async function startProxy(id) {
  */
 export async function backupProxies() {
     try {
-        const response = await fetch(`${BASE_URL}/backup`, {
+        const response = await fetch(`/backup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status} ${JSON.parse(await response.text()).error}`);
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -145,13 +141,13 @@ export async function restoreProxies(mode = 'append') {
                     reader.onload = async (e) => {
                         try {
                             const backupData = e.target.result;
-                            const response = await fetch(`${BASE_URL}/restore?mode=${mode}`, {
+                            const response = await fetch(`/restore?mode=${mode}`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: backupData
                             });
 
-                            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                            if (!response.ok) throw new Error(`HTTP ${response.status} ${JSON.parse(await response.text()).error}`);
 
                             // Clean up
                             document.body.removeChild(input);

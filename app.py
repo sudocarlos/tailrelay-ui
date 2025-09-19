@@ -127,6 +127,25 @@ def check_process_status(process_id):
     except OSError:
         return "stopped"
 
+def proxy_config_exists(listening_port, target_host, target_port):
+    """Check if a proxy with the given configuration already exists in the database."""
+    conn = get_db_connection()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT COUNT(*) as count 
+        FROM proxy_processes 
+        WHERE listening_port = ? 
+        AND target_host = ? 
+        AND target_port = ?
+    ''', (listening_port, target_host, target_port))
+    
+    result = cursor.fetchone()
+    conn.close()
+    
+    return result['count'] > 0
+
 @app.before_request
 def initialize():
     """Initialize the application before each request."""
@@ -142,40 +161,36 @@ def create_proxy():
     """Configure and start a new socat proxy."""
     try:
         data = request.get_json()
-        
-        listening_port = int(data['listening_port'])
-        target_host = data['target_host']
-        target_port = int(data['target_port'])
-        
-        if not target_host:
-            return jsonify({"error": "Target host cannot be empty"}), 400
-            
-        # Start the socat proxy
+
+        if proxy_config_exists(data['listening_port'], data['target_host'], data['target_port']):
+            return jsonify({"error": "A proxy with this configuration already exists"}), 400
+
+        # Proceed with creation
         process = start_socat_proxy(
-            listening_port,
-            target_host,
-            target_port
+            data['listening_port'],
+            data['target_host'],
+            data['target_port']
         )
         
-        # Store proxy information in database
         proxy_id = create_proxy_in_db(
-            listening_port,
-            target_host,
-            target_port,
+            data['listening_port'],
+            data['target_host'],
+            data['target_port'],
             process.pid
         )
         
-        # Store the process object in memory for later use
+        # Store in memory
         active_processes[proxy_id] = process
         
         return jsonify({
             "id": proxy_id,
-            "process_id": process.pid,
+            "listening_port": data['listening_port'],
+            "target_host": data['target_host'],
+            "target_port": data['target_port'],
             "status": "running"
-        })
-        
+        }), 201
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/proxy', methods=['GET'])
 def list_proxies():
@@ -341,7 +356,7 @@ def restore_proxies():
         
         if not backup_data:
             return jsonify({"error": "No backup data provided"}), 400
-            
+
         # Get the restore options
         mode = request.args.get('mode', 'append')  # Default to append
         
@@ -354,21 +369,19 @@ def restore_proxies():
                 
         # Add each proxy from backup
         for proxy_config in backup_data:
+
+            if proxy_config_exists(proxy_config['listening_port'], proxy_config['target_host'], proxy_config['target_port']):
+                return jsonify({"error": "A proxy with this configuration already exists"}), 400
+
             # Skip the ID when restoring (it will be auto-generated)
             proxy_config.pop('id', None)
-            
-            process = start_socat_proxy(
-                proxy_config['listening_port'],
-                proxy_config['target_host'],
-                proxy_config['target_port']
-            )
             
             # Insert into database with new ID
             create_proxy_in_db(
                 proxy_config['listening_port'],
                 proxy_config['target_host'],
                 proxy_config['target_port'],
-                process.pid
+                None
             )
             
             restored_count += 1
